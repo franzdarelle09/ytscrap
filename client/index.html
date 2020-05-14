@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>YT Scrap App</h1>
+
+    <h4>Add a new creator</h4>
+    <input type="text" class="channel-input" placeholder="paste Youtube URL" />
+    <button type="submit" onclick="submitChannel()">submit</button>
+    <div class="container"></div>
+    <script>
+        function submitChannel(){
+            const channelURL = document.querySelector('.channel-input').value;
+            //send to server
+            fetch('http://localhost:4000/creators',{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',         
+                },
+                body: JSON.stringify({channelURL})
+            })
+            .then(data => {
+                window.location.reload();
+            })
+
+        }
+
+        function newEl(type, attrs = {}){
+            const el = document.createElement(type);
+            for (let attr in attrs){
+                const value = attrs[attr];
+                if (attr == 'innerText') el.innerText = value;
+                else el.setAttribute(attr, value);
+            }
+            return el;
+        }
+
+        async function loadCreators(){
+            console.log('damn');
+            const res = await fetch('http://localhost:4000/creators');
+            const creators = await res.json();
+            console.log(res)
+            const ctr = document.querySelector('.container');
+            creators.forEach(creator => {
+                const card = newEl('div', {class: 'card'});
+                const title = newEl('h4', {innerText: creator.name});
+                const img = newEl('img', {src: creator.img});
+                const subscribers = newEl('p', {innerText: creator.subscribers});
+                card.appendChild(title);
+                card.appendChild(img);
+                card.appendChild(subscribers);
+                ctr.appendChild(card);
+            });
+        }
+        
+        
+        loadCreators();
+       
+       
+
+    </script>
+    <style>
+        .container {
+            display: flex;
+        }
+        
+        .card{
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+        }
+    </style>
+</body>
+</html>
